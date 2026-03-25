@@ -536,32 +536,133 @@
         
         /* Voice Picker Container Styling */
         #voicePickerContainer {
-            /* Voice picker component will be mounted here */
-            /* Styles will be handled by the VoicePicker component */
+            position: relative;
         }
         
-        .tts-voice-select {
-            padding: 6px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #0f172a;
-            background: #fafafa;
+        /* CUSTOM VOICE PICKER STYLES */
+        .voice-picker {
+            position: relative;
+        }
+        
+        .voice-picker-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
             cursor: pointer;
             transition: all 0.2s ease;
             min-width: 140px;
         }
         
-        .tts-voice-select:hover {
-            background: #ffffff;
+        .voice-picker-trigger:hover {
             border-color: #d1d5db;
+            background: #f9fafb;
         }
         
-        .tts-voice-select:focus {
+        .voice-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            flex-shrink: 0;
+        }
+        
+        .voice-arrow {
+            margin-left: auto;
+            font-size: 12px;
+            color: #64748b;
+            transition: transform 0.2s ease;
+        }
+        
+        .voice-picker-trigger.open .voice-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .voice-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            width: 260px;
+            border-radius: 12px;
+            background: #0f172a;
+            color: white;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .voice-search {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
             outline: none;
-            border-color: #000000;
-            box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+            background: #1e293b;
+            color: white;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+        
+        .voice-search::placeholder {
+            color: #94a3b8;
+        }
+        
+        .voice-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .voice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .voice-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .voice-item.active {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .voice-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .voice-item-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .voice-item-meta {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .voice-item-check {
+            color: #10b981;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .voice-item.active .voice-item-check {
+            opacity: 1;
         }
         
         /* Download Button Styling */
@@ -4462,13 +4563,28 @@
                                         <!-- LEFT: VOICE PICKER -->
                                         <div class="tts-left-controls">
                                             <div id="voicePickerContainer">
-                                                <select class="tts-voice-select" id="voicePickerSelect">
-                                                    <option value="amy">Amy (English US)</option>
-                                                    <option value="ryan">Ryan (English UK)</option>
-                                                    <option value="john">John (English US)</option>
-                                                    <option value="sofia">Sofia (Spanish)</option>
-                                                    <option value="meera">Meera (Hindi)</option>
-                                                </select>
+                                                <!-- CUSTOM VOICE PICKER IMPLEMENTED -->
+                                                <div class="voice-picker">
+                                                    <!-- SELECTED -->
+                                                    <div class="voice-picker-trigger" onclick="toggleVoiceDropdown()">
+                                                        <div class="voice-avatar"></div>
+                                                        <span id="selectedVoiceLabel">Rachel</span>
+                                                        <span class="voice-arrow">⌄</span>
+                                                    </div>
+
+                                                    <!-- DROPDOWN -->
+                                                    <div class="voice-dropdown" id="voiceDropdown">
+                                                        <!-- SEARCH -->
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Search voices..." 
+                                                            class="voice-search"
+                                                            oninput="filterVoices(this.value)"
+                                                        />
+                                                        <!-- LIST -->
+                                                        <div class="voice-list" id="voiceList"></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <button class="tts-settings-btn">⚙ Settings</button>
                                         </div>
@@ -7048,6 +7164,89 @@ curl -X <span class="tok-method">POST</span> <span class="tok-str">https://api.c
         function generateTTS() {
             if (window.app) window.app.generateSpeech();
         }
+
+        // CUSTOM VOICE PICKER LOGIC
+        let voiceOpen = false;
+        let selectedVoice = 'Rachel';
+
+        const voices = [
+            { name: "Rachel", meta: "american • Female • Young" },
+            { name: "Drew", meta: "american • Male • Middle aged" },
+            { name: "Clyde", meta: "american • Male • Middle aged" },
+            { name: "Amy", meta: "english • Female • Warm" },
+            { name: "Ryan", meta: "british • Male • Confident" },
+            { name: "Sofia", meta: "spanish • Female • Bright" },
+            { name: "Meera", meta: "hindi • Female • Soothing" },
+            { name: "John", meta: "american • Male • Deep" }
+        ];
+
+        function toggleVoiceDropdown() {
+            const dropdown = document.getElementById("voiceDropdown");
+            const trigger = document.querySelector(".voice-picker-trigger");
+            
+            voiceOpen = !voiceOpen;
+            dropdown.style.display = voiceOpen ? "flex" : "none";
+            
+            if (voiceOpen) {
+                trigger.classList.add('open');
+                // Focus search input when opened
+                setTimeout(() => {
+                    const searchInput = document.querySelector('.voice-search');
+                    if (searchInput) searchInput.focus();
+                }, 100);
+            } else {
+                trigger.classList.remove('open');
+            }
+        }
+
+        function renderVoices(list = voices) {
+            const container = document.getElementById("voiceList");
+            container.innerHTML = "";
+
+            list.forEach(voice => {
+                const div = document.createElement("div");
+                div.className = `voice-item ${voice.name === selectedVoice ? 'active' : ''}`;
+                
+                div.innerHTML = `
+                    <div class="voice-item-info">
+                        <div class="voice-item-name">${voice.name}</div>
+                        <div class="voice-item-meta">${voice.meta}</div>
+                    </div>
+                    <span class="voice-item-check">✓</span>
+                `;
+
+                div.onclick = () => {
+                    selectedVoice = voice.name;
+                    document.getElementById("selectedVoiceLabel").innerText = voice.name;
+                    toggleVoiceDropdown();
+                    // Clear search
+                    document.querySelector('.voice-search').value = '';
+                };
+
+                container.appendChild(div);
+            });
+        }
+
+        function filterVoices(query) {
+            const filtered = voices.filter(voice =>
+                voice.name.toLowerCase().includes(query.toLowerCase()) ||
+                voice.meta.toLowerCase().includes(query.toLowerCase())
+            );
+            renderVoices(filtered);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const voicePicker = document.querySelector('.voice-picker');
+            if (voicePicker && !voicePicker.contains(event.target) && voiceOpen) {
+                toggleVoiceDropdown();
+            }
+        });
+
+        // Initialize voice picker on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderVoices();
+        });
 </script>
 </body>
 </html>
