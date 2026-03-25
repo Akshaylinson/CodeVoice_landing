@@ -529,28 +529,26 @@
             position: relative;
         }
         
-        /* MATCHED VOICE SELECTOR TO REFERENCE DESIGN */
+        /* FIXED AVATAR DISTORTION */
         .voice-picker-trigger,
         .tts-settings-btn {
-            height: 34px;
+            height: 36px;
             padding: 0 12px;
             border-radius: 999px;
             border: 1px solid #e5e7eb;
             background: #ffffff;
-            line-height: 1;
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 13px;
             font-weight: 500;
-            box-shadow: none;
+            box-sizing: border-box;
         }
         
         .voice-picker-trigger {
             display: flex;
             align-items: center;
-            gap: 10px;
-            min-width: 140px;
-            overflow: hidden;
+            justify-content: space-between;
+            min-width: 180px;
         }
         
         .tts-settings-btn {
@@ -562,36 +560,58 @@
         
         .voice-picker-trigger:hover,
         .tts-settings-btn:hover {
-            border-color: #d1d5db;
             background: #f9fafb;
         }
         
-        /* SMALL + SOFT GRADIENT AVATAR */
+        /* LEFT SIDE - VOICE INFO */
+        .voice-picker-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        /* AVATAR WRAPPER - PREVENT FLEX STRETCHING */
+        .voice-avatar-wrapper {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto; /* PREVENT FLEX STRETCH */
+        }
+        
+        /* PERFECT CIRCLE AVATAR */
         .voice-avatar {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            min-height: 20px;
+            max-width: 20px;
+            max-height: 20px;
+            aspect-ratio: 1 / 1; /* KEY FIX */
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #c4b5fd, #f9a8d4);
+            background: linear-gradient(135deg, #c4b5fd, #f9a8d4);
+            display: block;
             flex-shrink: 0;
         }
         
-        /* BALANCED TYPOGRAPHY */
+        /* CLEAN TYPOGRAPHY */
         #selectedVoiceLabel {
             font-size: 13px;
             font-weight: 500;
             color: #111827;
-            line-height: 1;
-        }
-        
-        /* PERFECT ARROW ALIGNMENT */
-        .voice-arrow {
             display: flex;
             align-items: center;
-            justify-content: center;
+        }
+        
+        /* RIGHT ALIGNED ARROW */
+        .voice-arrow {
             font-size: 12px;
-            color: #6b7280;
-            margin-left: 4px;
-            line-height: 1;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            margin-left: 6px;
             transition: transform 0.2s ease;
         }
         
@@ -4587,13 +4607,17 @@
                                         <!-- LEFT: VOICE PICKER -->
                                         <div class="tts-left-controls">
                                             <div id="voicePickerContainer">
-                                                <!-- CUSTOM VOICE PICKER IMPLEMENTED -->
+                                                <!-- VOICE SELECTOR REDESIGNED CLEAN STYLE -->
                                                 <div class="voice-picker">
                                                     <!-- SELECTED -->
                                                     <div class="voice-picker-trigger" onclick="toggleVoiceDropdown()">
-                                                        <div class="voice-avatar"></div>
-                                                        <span id="selectedVoiceLabel">Rachel</span>
-                                                        <span class="voice-arrow">⌄</span>
+                                                        <div class="voice-picker-left">
+                                                            <div class="voice-avatar-wrapper">
+                                                                <div class="voice-avatar"></div>
+                                                            </div>
+                                                            <span id="selectedVoiceLabel">Rachel</span>
+                                                        </div>
+                                                        <span class="voice-arrow">⇅</span>
                                                     </div>
 
                                                     <!-- DROPDOWN -->
