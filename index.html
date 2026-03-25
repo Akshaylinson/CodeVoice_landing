@@ -529,32 +529,34 @@
             position: relative;
         }
         
-        /* FIXED CONTROL SIZE CONSISTENCY */
+        /* MATCHED VOICE SELECTOR TO REFERENCE DESIGN */
         .voice-picker-trigger,
         .tts-settings-btn {
-            height: 36px;
-            padding: 0 14px;
+            height: 34px;
+            padding: 0 12px;
             border-radius: 999px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e5e7eb;
             background: #ffffff;
             line-height: 1;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: none;
         }
         
         .voice-picker-trigger {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             min-width: 140px;
+            overflow: hidden;
         }
         
         .tts-settings-btn {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 12px;
-            font-weight: 500;
             color: #64748b;
         }
         
@@ -564,18 +566,32 @@
             background: #f9fafb;
         }
         
+        /* SMALL + SOFT GRADIENT AVATAR */
         .voice-avatar {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            background: radial-gradient(circle at 30% 30%, #c4b5fd, #f9a8d4);
             flex-shrink: 0;
         }
         
+        /* BALANCED TYPOGRAPHY */
+        #selectedVoiceLabel {
+            font-size: 13px;
+            font-weight: 500;
+            color: #111827;
+            line-height: 1;
+        }
+        
+        /* PERFECT ARROW ALIGNMENT */
         .voice-arrow {
-            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
-            color: #64748b;
+            color: #6b7280;
+            margin-left: 4px;
+            line-height: 1;
             transition: transform 0.2s ease;
         }
         
