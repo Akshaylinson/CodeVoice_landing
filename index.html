@@ -444,8 +444,169 @@
         /* REMOVED: Old TTS generator styles - now using unified card system */
         
         /* ============================================ */
-        /* FIXED TTS CARD LAYOUT                        */
+        /* UPDATED TTS INPUT PANEL - ELEVENLABS STYLE */
         /* ============================================ */
+        
+        .tts-input-panel {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .tts-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            font-family: inherit;
+            color: #0f172a;
+            background: transparent;
+        }
+        
+        .tts-textarea::placeholder {
+            color: #94a3b8;
+        }
+        
+        .tts-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .tts-left-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tts-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .tts-generate-btn {
+            background: #0f172a;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .tts-generate-btn:hover {
+            background: #1a1a1a;
+            transform: translateY(-1px);
+        }
+        
+        .tts-settings-btn {
+            background: #f1f5f9;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #64748b;
+        }
+        
+        .tts-settings-btn:hover {
+            background: #e2e8f0;
+        }
+        
+        .tts-char-count {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        /* Voice Picker Container Styling */
+        #voicePickerContainer {
+            /* Voice picker component will be mounted here */
+            /* Styles will be handled by the VoicePicker component */
+        }
+        
+        .tts-voice-select {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #0f172a;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 140px;
+        }
+        
+        .tts-voice-select:hover {
+            background: #ffffff;
+            border-color: #d1d5db;
+        }
+        
+        .tts-voice-select:focus {
+            outline: none;
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+        }
+        
+        /* Download Button Styling */
+        .tts-download-btn {
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            padding: 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .tts-download-btn:hover {
+            background: #1a1a1a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .tts-controls {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .tts-left-controls,
+            .tts-right-controls {
+                justify-content: center;
+            }
+            
+            .tts-generate-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
         
         .tts-card {
             background: white;
@@ -4287,44 +4448,47 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Text Input Section -->
-                                <div class="tts-input-section">
-                                    <div class="tts-input-label">
-                                        <span>Enter Your Text</span>
-                                        <span class="tts-char-count" id="ttsCharCount">0 characters</span>
-                                    </div>
+                                <!-- UPDATED TTS INPUT PANEL -->
+                                <div class="tts-input-panel">
+                                    <!-- TEXT AREA -->
                                     <textarea 
                                         id="textInput" 
                                         class="tts-textarea" 
-                                        placeholder="Type or paste your text here..."
+                                        placeholder="Type your text here..."
                                     >Welcome to CodeVoice, the future of AI voice generation. Experience studio-quality speech synthesis with our advanced neural networks.</textarea>
-                                </div>
-                                
-                                <!-- UPDATED VOICE CAROUSEL -->
-                                <div class="tts-voice-section">
-                                    <div class="tts-voice-label">Choose Voice</div>
-                                    <div class="voice-carousel-container">
-                                        <button class="voice-nav" id="voiceArrowPrev" onclick="shiftVoice(-1)" disabled aria-label="Previous voices">
-                                            <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
-                                        </button>
-                                        <div class="tts-voice-track-wrap">
-                                            <div class="voice-carousel" id="ttsVoiceGrid">
-                                                <!-- Voice cards populated by JS -->
+
+                                    <!-- BOTTOM BAR -->
+                                    <div class="tts-controls">
+                                        <!-- LEFT: VOICE PICKER -->
+                                        <div class="tts-left-controls">
+                                            <div id="voicePickerContainer">
+                                                <select class="tts-voice-select" id="voicePickerSelect">
+                                                    <option value="amy">Amy (English US)</option>
+                                                    <option value="ryan">Ryan (English UK)</option>
+                                                    <option value="john">John (English US)</option>
+                                                    <option value="sofia">Sofia (Spanish)</option>
+                                                    <option value="meera">Meera (Hindi)</option>
+                                                </select>
                                             </div>
+                                            <button class="tts-settings-btn">⚙ Settings</button>
                                         </div>
-                                        <button class="voice-nav" id="voiceArrowNext" onclick="shiftVoice(1)" aria-label="Next voices">
-                                            <svg viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
-                                        </button>
+
+                                        <!-- RIGHT: CHAR COUNT + BUTTON -->
+                                        <div class="tts-right-controls">
+                                            <span class="tts-char-count" id="ttsCharCount">0 / 5000</span>
+                                            <button class="tts-generate-btn" id="streamButton" onclick="generateTTS()">
+                                                Generate Speech
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Status Message -->
                                 <div class="tts-status-msg" id="statusMessage"></div>
 
-                                <!-- Generate Button -->
-                                <button class="tts-generate-btn" id="streamButton" onclick="generateTTS()">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
-                                    Generate Speech
+                                <!-- Download / Redirect Button -->
+                                <button class="tts-download-btn" onclick="window.location.href='codevoice.html'">
+                                    ⬇ Download / Use in Studio
                                 </button>
 
                                 <!-- Inline Audio Player (shown after generation) -->
