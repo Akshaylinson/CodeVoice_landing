@@ -513,21 +513,6 @@
             transform: translateY(-1px);
         }
         
-        .tts-settings-btn {
-            background: #f1f5f9;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #64748b;
-        }
-        
-        .tts-settings-btn:hover {
-            background: #e2e8f0;
-        }
-        
         .tts-char-count {
             font-size: 12px;
             color: #94a3b8;
@@ -544,27 +529,44 @@
             position: relative;
         }
         
-        .voice-picker-trigger {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 14px;
+        /* FIXED CONTROL SIZE CONSISTENCY */
+        .voice-picker-trigger,
+        .tts-settings-btn {
+            height: 36px;
+            padding: 0 14px;
             border-radius: 999px;
             border: 1px solid #e2e8f0;
             background: #ffffff;
+            line-height: 1;
             cursor: pointer;
             transition: all 0.2s ease;
+        }
+        
+        .voice-picker-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             min-width: 140px;
         }
         
-        .voice-picker-trigger:hover {
+        .tts-settings-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+        }
+        
+        .voice-picker-trigger:hover,
+        .tts-settings-btn:hover {
             border-color: #d1d5db;
             background: #f9fafb;
         }
         
         .voice-avatar {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: linear-gradient(135deg, #a78bfa, #f472b6);
             flex-shrink: 0;
@@ -579,6 +581,12 @@
         
         .voice-picker-trigger.open .voice-arrow {
             transform: rotate(180deg);
+        }
+        
+        .tts-left-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .voice-dropdown {
@@ -7165,20 +7173,39 @@ curl -X <span class="tok-method">POST</span> <span class="tok-str">https://api.c
             if (window.app) window.app.generateSpeech();
         }
 
-        // CUSTOM VOICE PICKER LOGIC
+        // CUSTOM VOICE PICKER LOGIC - CONNECTED TO API
         let voiceOpen = false;
-        let selectedVoice = 'Rachel';
+        let selectedVoice = null;
+        let voices = [];
 
-        const voices = [
-            { name: "Rachel", meta: "american • Female • Young" },
-            { name: "Drew", meta: "american • Male • Middle aged" },
-            { name: "Clyde", meta: "american • Male • Middle aged" },
-            { name: "Amy", meta: "english • Female • Warm" },
-            { name: "Ryan", meta: "british • Male • Confident" },
-            { name: "Sofia", meta: "spanish • Female • Bright" },
-            { name: "Meera", meta: "hindi • Female • Soothing" },
-            { name: "John", meta: "american • Male • Deep" }
-        ];
+        // FETCH VOICES FROM API
+        async function loadVoices() {
+            try {
+                const res = await fetch("http://127.0.0.1:8000/v1/voices");
+                const data = await res.json();
+
+                voices = data.voices;
+                renderVoices(voices);
+
+                // Set default voice
+                if (voices.length > 0) {
+                    setSelectedVoice(voices[0]);
+                }
+
+            } catch (err) {
+                console.error("Failed to load voices:", err);
+                // Fallback to static voices if API fails
+                voices = [
+                    { name: "Rachel", language_name: "English (US)", gender: "Female" },
+                    { name: "Drew", language_name: "English (US)", gender: "Male" },
+                    { name: "Amy", language_name: "English (UK)", gender: "Female" }
+                ];
+                renderVoices(voices);
+                if (voices.length > 0) {
+                    setSelectedVoice(voices[0]);
+                }
+            }
+        }
 
         function toggleVoiceDropdown() {
             const dropdown = document.getElementById("voiceDropdown");
@@ -7199,40 +7226,80 @@ curl -X <span class="tok-method">POST</span> <span class="tok-str">https://api.c
             }
         }
 
-        function renderVoices(list = voices) {
+        // UPDATED RENDER FUNCTION FOR API DATA
+        function renderVoices(list) {
             const container = document.getElementById("voiceList");
             container.innerHTML = "";
 
             list.forEach(voice => {
                 const div = document.createElement("div");
-                div.className = `voice-item ${voice.name === selectedVoice ? 'active' : ''}`;
+                div.className = `voice-item ${selectedVoice && voice.name === selectedVoice.name ? 'active' : ''}`;
                 
                 div.innerHTML = `
                     <div class="voice-item-info">
                         <div class="voice-item-name">${voice.name}</div>
-                        <div class="voice-item-meta">${voice.meta}</div>
+                        <div class="voice-item-meta">${voice.language_name} • ${voice.gender}</div>
                     </div>
                     <span class="voice-item-check">✓</span>
                 `;
 
-                div.onclick = () => {
-                    selectedVoice = voice.name;
-                    document.getElementById("selectedVoiceLabel").innerText = voice.name;
-                    toggleVoiceDropdown();
-                    // Clear search
-                    document.querySelector('.voice-search').value = '';
-                };
-
+                div.onclick = () => setSelectedVoice(voice);
                 container.appendChild(div);
             });
         }
 
+        // HANDLE VOICE SELECTION
+        function setSelectedVoice(voice) {
+            selectedVoice = voice;
+
+            // Update UI label
+            document.getElementById("selectedVoiceLabel").innerText = voice.name;
+
+            // Update avatar color based on voice name
+            const avatar = document.querySelector('.voice-avatar');
+            if (avatar) {
+                avatar.style.background = getAvatarColor(voice.name);
+            }
+
+            // Re-render to update active states
+            renderVoices(voices);
+
+            // Close dropdown
+            if (voiceOpen) {
+                toggleVoiceDropdown();
+            }
+
+            // Clear search
+            const searchInput = document.querySelector('.voice-search');
+            if (searchInput) searchInput.value = '';
+        }
+
+        // UPDATED SEARCH FILTER FOR API DATA
         function filterVoices(query) {
             const filtered = voices.filter(voice =>
                 voice.name.toLowerCase().includes(query.toLowerCase()) ||
-                voice.meta.toLowerCase().includes(query.toLowerCase())
+                voice.language_name.toLowerCase().includes(query.toLowerCase()) ||
+                voice.gender.toLowerCase().includes(query.toLowerCase())
             );
             renderVoices(filtered);
+        }
+
+        // AVATAR COLOR BASED ON VOICE NAME
+        function getAvatarColor(name) {
+            const colors = [
+                "linear-gradient(135deg, #a78bfa, #f472b6)",
+                "linear-gradient(135deg, #60a5fa, #22d3ee)",
+                "linear-gradient(135deg, #34d399, #10b981)",
+                "linear-gradient(135deg, #f59e0b, #f97316)",
+                "linear-gradient(135deg, #ef4444, #ec4899)",
+                "linear-gradient(135deg, #8b5cf6, #a78bfa)"
+            ];
+            return colors[name.length % colors.length];
+        }
+
+        // GET SELECTED VOICE FOR TTS API
+        function getSelectedVoiceName() {
+            return selectedVoice ? selectedVoice.name : null;
         }
 
         // Close dropdown when clicking outside
@@ -7243,9 +7310,9 @@ curl -X <span class="tok-method">POST</span> <span class="tok-str">https://api.c
             }
         });
 
-        // Initialize voice picker on page load
+        // LOAD VOICES ON PAGE START
         document.addEventListener('DOMContentLoaded', function() {
-            renderVoices();
+            loadVoices();
         });
 </script>
 </body>
