@@ -340,9 +340,9 @@
                 inset 0 1px rgba(255,255,255,0.6);
             position: relative;
             z-index: 2;
-            min-height: 480px; /* FIXED: Common fixed height for all cards */
-            max-height: 560px; /* FIXED CARD SPACING: increased to prevent carousel clipping */
-            overflow: hidden; /* FIXED: Prevent content overflow */
+            min-height: 480px;
+            max-height: 560px;
+            overflow: visible; /* FIX: allow dropdown to escape panel bounds */
         }
 
         .hero-glass-panel::before {
@@ -626,9 +626,7 @@
         }
         
         .voice-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
+            position: fixed; /* FIX: use fixed so it escapes all overflow:hidden parents */
             margin-top: 8px;
             width: 260px;
             border-radius: 12px;
@@ -638,8 +636,8 @@
             display: none;
             flex-direction: column;
             gap: 8px;
-            z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
         }
         
         .voice-search {
@@ -7250,18 +7248,22 @@ curl -X <span class="tok-method">POST</span> <span class="tok-str">https://api.c
         function toggleVoiceDropdown() {
             const dropdown = document.getElementById("voiceDropdown");
             const trigger = document.querySelector(".voice-picker-trigger");
-            
+
             voiceOpen = !voiceOpen;
-            dropdown.style.display = voiceOpen ? "flex" : "none";
-            
+
             if (voiceOpen) {
+                // Position dropdown using fixed coords from trigger's bounding rect
+                const rect = trigger.getBoundingClientRect();
+                dropdown.style.top = (rect.bottom + 8) + 'px';
+                dropdown.style.left = rect.left + 'px';
+                dropdown.style.display = 'flex';
                 trigger.classList.add('open');
-                // Focus search input when opened
                 setTimeout(() => {
-                    const searchInput = document.querySelector('.voice-search');
+                    const searchInput = dropdown.querySelector('.voice-search');
                     if (searchInput) searchInput.focus();
-                }, 100);
+                }, 50);
             } else {
+                dropdown.style.display = 'none';
                 trigger.classList.remove('open');
             }
         }
@@ -7351,9 +7353,11 @@ curl -X <span class="tok-method">POST</span> <span class="tok-str">https://api.c
         });
 
         // LOAD VOICES ON PAGE START
-        document.addEventListener('DOMContentLoaded', function() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadVoices);
+        } else {
             loadVoices();
-        });
+        }
 </script>
 </body>
 </html>
